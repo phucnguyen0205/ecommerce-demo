@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test E-commerce Pages</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <h1>Kiểm tra trang web</h1>
+    <div id="results"></div>
+
+    <script>
+    // Test 1: Kiểm tra file tồn tại
+    async function testFileExists(url) {
+        try {
+            const response = await fetch(url);
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
+    // Test 2: Kiểm tra CSS được load
+    function testCSSLoaded() {
+        const styles = document.styleSheets;
+        return styles.length > 0;
+    }
+
+    // Chạy tất cả tests
+    async function runTests() {
+        const results = [];
+        
+        results.push({
+            test: 'index.html tồn tại',
+            passed: await testFileExists('../index.html')
+        });
+        
+        results.push({
+            test: 'product.html tồn tại',
+            passed: await testFileExists('../product.html')
+        });
+        
+        results.push({
+            test: 'CSS được load',
+            passed: testCSSLoaded()
+        });
+        
+        // Hiển thị kết quả
+        const allPassed = results.every(r => r.passed);
+        document.getElementById('results').innerHTML = `
+            <h2 style="color: ${allPassed ? 'green' : 'red'}">
+                ${allPassed ? '✅ Tất cả tests đã pass!' : '❌ Có test thất bại!'}
+            </h2>
+            ${results.map(r => 
+                `<p>${r.passed ? '✅' : '❌'} ${r.test}</p>`
+            ).join('')}
+        `;
+        
+        return allPassed;
+    }
+
+    runTests();
+    </script>
+</body>
+</html>

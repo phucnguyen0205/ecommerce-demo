@@ -1,0 +1,43 @@
+name: CI/CD - Test & Deploy to Vercel
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+    
+    - name: 🔍 Kiểm tra cấu trúc file
+      run: |
+        echo "Kiểm tra các file quan trọng..."
+        test -f index.html && echo "✅ index.html tồn tại" || { echo "❌ Thiếu index.html"; exit 1; }
+        test -f product.html && echo "✅ product.html tồn tại" || echo "⚠️ Thiếu product.html"
+        test -f css/style.css && echo "✅ style.css tồn tại" || echo "⚠️ Thiếu style.css"
+    
+    - name: 🔬 HTML Validation
+      run: |
+        echo "Validate HTML cơ bản..."
+        # Kiểm tra HTML có thẻ đóng đúng không
+        grep -q "<!DOCTYPE html>" index.html && echo "✅ DOCTYPE đúng" || echo "⚠️ Thiếu DOCTYPE"
+        grep -q "</html>" index.html && echo "✅ Thẻ html đóng đúng" || echo "⚠️ Thiếu thẻ đóng html"
+    
+    - name: 📏 Kiểm tra kích thước file
+      run: |
+        echo "Kích thước các file:"
+        ls -lh index.html product.html css/style.css 2>/dev/null || true
+    
+    - name: 🚀 Deploy to Vercel
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
